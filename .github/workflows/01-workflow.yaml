@@ -15,3 +15,6 @@ jobs:
         steps: 
             - name: step 1
               run: echo "Hello from the final step"
+
+            - name: step 2
+              run: "hello from the another step"
