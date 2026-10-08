@@ -1,0 +1,23 @@
+name: 04 - Multiple Runners for Windows and Linux.
+on: push
+jobs:
+    Job-1-Ubuntu-Runner:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print the ubuntu Runner Details
+              run: |
+                echo "Workflow is executing on a github-hosted runner"
+                echo "Runner Name: ${RUNNER_NAME}"
+                echo "Runner OS: ${RUNNER_OS}"
+                echo "Runner Architecture: ${RUNNER_ARCH}"
+
+    Job-2-Windows-Runner:
+        runs-on: windows-latest
+        steps:
+            - name: Print the ubuntu Runner Details
+              shell: bash
+              run: |
+                echo "Workflow is executing on a github-hosted Windows OS runner"
+                echo "Runner Name: ${RUNNER_NAME}"
+                echo "Runner OS: ${RUNNER_OS}"
+                echo "Runner Architecture: ${RUNNER_ARCH}"
