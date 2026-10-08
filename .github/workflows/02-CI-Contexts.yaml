@@ -1,0 +1,8 @@
+name: "01-understanding-contexts"
+on: push
+jobs:
+    event-info-job1:
+                runs-on: ubuntu-latest
+                steps: 
+                    - name: Print Trigger Event
+                      run: echo "My trigger even is ${{ github.event_name }} event" #entire is the expression, the github is the context and .event_name is the 
