@@ -1,5 +1,8 @@
 name: 03-CI-Runners
-on: push
+on: 
+    workflow_dispatch:
+    push:
+    pull_request:
 jobs:
     runner-info-job:
         runs-on: ubuntu-latest
@@ -10,4 +13,3 @@ jobs:
                 echo "Runner Name: ${RUNNER_NAME}"
                 echo "Runner OS: ${RUNNER_OS}"
                 echo "Runner Architecture: ${RUNNER_ARCH}"
-                
