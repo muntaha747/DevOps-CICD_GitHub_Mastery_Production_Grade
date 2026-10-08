@@ -1,4 +1,4 @@
-name: "02 - Understanding - Events"
+name: "02A - Understanding - Events"
 on:
     workflow_dispatch:
     push:
@@ -11,4 +11,3 @@ jobs:
         steps:
             - name: Print the Trigger Event
               run: echo "My Trigger is ${{ github.event_name }}"
-              
