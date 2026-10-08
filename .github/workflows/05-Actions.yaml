@@ -1,0 +1,21 @@
+name: 05-actions@-Pipeline
+on: push
+jobs:
+    Job-1-flask-job:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+
+            - name: Build Docker image
+              run: docker build -t CICD-Flask-app:version01 .
+
+            - name: Run Container
+              run: docker run -d -p 5000:5000 --name  CICD-Flask-container CICD-Flask-app:version01 
+
+            - name: Smoke Test
+              run: |
+                sleep 10
+                curl http://localhost:5000/health
+        
