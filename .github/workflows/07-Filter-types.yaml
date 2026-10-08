@@ -5,7 +5,7 @@ on:
       - develop
       - "feature/*"
     paths:
-      - "app/**"
+      - "app1/**"
       - "docker/**"
       - ".github/workflows/**"
 
