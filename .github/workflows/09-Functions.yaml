@@ -1,65 +1,41 @@
-# Workflow name that shows up in the GitHub Actions tab
 name: 09-Functions build pipeline for python application
 
 on:
-  # Trigger 1: on every push to these branches
   push:
     branches:
       - main
       - feature1
-    # Only trigger if one of these files changed.
-    # Pushing a README change won't run the pipeline.
     paths:
       - '.github/workflows/**'
       - 'app/app.py'
       - 'docker/Dockerfile'
 
-  # Trigger 2: on pull requests targeting main
   pull_request:
     branches:
       - main
-    # Only run for these PR activities, not every event.
-    # opened           -> PR was created
-    # synchronize      -> new commit pushed to the PR
-    # ready_for_review -> draft PR marked ready
     types:
       - opened
       - synchronize
       - ready_for_review
 
-# Workflow-level variables. Available in every job and step.
 env:
   APPLICATION_NAME: muntaha-python-app
   DOCKER_USERNAME: muntaha747
 
 jobs:
   flask-build-test-publish-job:
-    # GitHub spins up a fresh Ubuntu runner for this job.
-    # It's destroyed once the job finishes.
     runs-on: ubuntu-latest
 
-    # Job-level gate. Even if the workflow triggers, the job only runs when:
-    #   - push to a branch starting with "feature1", OR
-    #   - PR to main whose title does NOT contain "WIP"
-    # This means pushing to main will show up as a "skipped" job.
     if: ${{ (github.event_name == 'push' && startsWith(github.ref_name, 'feature1')) || (github.event_name == 'pull_request' && !contains(github.event.pull_request.title, 'WIP')) }}
 
     steps:
-      # Pull the repo into the runner. Without this, the runner is empty.
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Build a unique tag for the image so we can trace it back to the
-      # exact workflow run and commit. Example: v42-a1b2c3d
-      #   GITHUB_RUN_NUMBER = the 42nd run of this workflow
-      #   GITHUB_SHA::7     = first 7 chars of the commit hash
-      # Writing to $GITHUB_ENV makes IMAGE_TAG visible to later steps.
       - name: Generate Dynamic Image Tag
         run: |
           echo "IMAGE_TAG=v${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      # Print metadata to the logs so we can verify what's being built.
-      # Handy when debugging a failed run.
       - name: Display Build Information
         run: |
           echo "Application: ${APPLICATION_NAME}"
@@ -67,22 +43,14 @@ jobs:
           echo "Actor: ${GITHUB_ACTOR}"
           echo "Branch: ${GITHUB_REF_NAME}"
           echo "Image Tag: ${IMAGE_TAG}"
+          echo "${{ github.event_name }}"
 
-      # Log in to Docker Hub using the token stored in repo secrets.
-      # Never use the account password in a pipeline.
       - name: Docker Login
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Build the image from docker/Dockerfile using the repo root as
-      # build context.
-      #   push: false -> don't push yet, we need to test first
-      #   load: true  -> load the image into the local docker daemon so
-      #                  the next step can `docker run` it. Without this
-      #                  the image only exists in buildx cache and
-      #                  `docker run` won't find it.
       - name: Build Image
         uses: docker/build-push-action@v6
         with:
@@ -92,10 +60,6 @@ jobs:
           load: true
           tags: ${{ env.DOCKER_USERNAME }}/${{ env.APPLICATION_NAME }}:${{ env.IMAGE_TAG }}
 
-      # Start the container in the background so we can hit it with curl.
-      # -d               -> detached
-      # -p 5000:5000     -> map host port 5000 to container port 5000
-      # --name           -> friendly name so we can reference it later
       - name: Run the Container
         run: |
           docker run -d \
@@ -103,39 +67,26 @@ jobs:
             --name Flask-App-Container \
             ${DOCKER_USERNAME}/${APPLICATION_NAME}:${IMAGE_TAG}
 
-      # Dump container logs to the workflow output. If the Flask app
-      # crashed on startup, this is where you'll see the traceback.
       - name: Docker middle step logs
         run: |
           docker logs Flask-App-Container
 
-      # Fast check that the app is actually serving traffic.
-      # --fail makes curl return a non-zero exit code on HTTP 4xx/5xx,
-      # so the step fails properly instead of silently passing.
       - name: Smoke Test
         run: |
           sleep 5
           curl --fail http://localhost:5000
           curl --fail http://localhost:5000/health
 
-      # Only push if everything above passed. This is the standard
-      # Build -> Test -> Push pattern so we never publish a broken image.
       - name: Push Image to Docker Hub
         if: ${{ success() }}
         run: |
           docker push ${DOCKER_USERNAME}/${APPLICATION_NAME}:${IMAGE_TAG}
 
-      # Only runs when something failed. Dumps the container logs one
-      # more time so we have them even if the container already died.
-      # || true stops the step from failing if the container is gone.
       - name: Collect Container Logs
         if: ${{ failure() }}
         run: |
           docker logs Flask-App-Container || true
 
-      # Always run, no matter what happened above.
-      # -f     -> force remove even if the container is still running
-      # || true -> don't fail the job if cleanup has nothing to remove
       - name: Cleanup Container
         if: ${{ always() }}
         run: |
