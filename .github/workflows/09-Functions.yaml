@@ -6,7 +6,7 @@ on:
       - feature1
     paths:
       - '.github/workflows/**'
-      - 'app.py'
+      - 'app/app.py'
 
   pull_request: #abc
     branches:
