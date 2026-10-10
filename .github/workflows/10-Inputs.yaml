@@ -1,0 +1,98 @@
+name: 10 - Input Build, Test and Package the artifacts by using the Input in the Pipeline during the runtime and prior to the execution.
+
+on:
+  workflow_dispatch:
+    inputs:
+      Environment:
+        description: Deployment Environment
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - qa
+          - prod
+
+      Perform_Smoke_Test:
+        description: Execute Smoke test
+        required: true
+        type: boolean
+        default: true
+
+env:
+  APPLICATION_NAME: devops-cicd_github_mastery_production_grade
+  DOCKER_USERNAME: muntaha747
+
+jobs:
+    Job1-Checkout-Test-Build-Image:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checking out the Codebase Repository
+              uses: actions/checkout@v7
+
+            - name: Creating Dynamic Tags
+              run: |
+                echo "${IMAGE_TAG}=v${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}" >> ${GITHUB.ENV}
+
+            - name: Display Input values
+              run: |
+                echo "Environment ${{ inputs.Environment }}"
+                echo "Perform Smoke Test ${{ inputs.Perform_Smoke_Test }}"
+            
+            - name: Build Docker Image
+              uses: docker/build-push-action@v7
+              with:
+                    context: .
+                    push: false
+                    tags: ${{ env.DOCKER_USERNAME }}/${{ env.APPLICATION_NAME }}:${{ env.IMAGE_TAG }}
+
+            - name: QA Validation Environment
+              if: ${{ inputs.Environment == 'qa' }}
+              run: |
+                echo "Running QA validation checks"
+                echo "Running Security Validation"
+                echo "Running integration Validation"
+                echo "QA validation checks are completed"
+
+            - name: Login to DockerHub
+              if: ${{ inputs.Environment != 'dev' }}
+              uses: docker/login-actions@v4
+              with:
+                    username: ${DOCKER_USERNAME}
+                    password: ${ secrets.DOCKERHUB_TOKEN}
+
+            - name: Push the docker image
+              if: ${{ inputs.Environment != 'dev' }}
+              uses: docker/build-push-action@v7
+              with:
+                context: .
+                file: ./docker/Dockerfile
+                tags: ${{ env.DOCKER_USERNAME }}/${{ env.APPLICATION_NAME }}:${{ env.IMAGE_TAG }}
+
+            - name: Running the container
+              run: |
+                docker run -d -p 5000:5000 --name Flask-Container \
+                ${{ env.DOCKER_USERNAME }}/${{ env.APPLICATION_NAME }}:${{ env.IMAGE_TAG }}
+
+            - name: Checking the docker logs
+              if: ${{ inputs.Environment != 'dev' }}
+              run: |
+                docker run logs Flask-Container
+
+            - name: Smoke Test 
+              if: ${{ inputs.Perform_Smoke_Test == true }}
+              run: |
+                sleep 5
+                if curl --fail https://localhost:5000/health; then
+                    echo "Smoke test is successful"
+                else
+                    echo "The Smoke test is unsuccessful"
+                    exit 1
+                fi
+
+            - name: Deploy to EKS Cluster
+              if: ${{ inputs.Environment == 'prod' }}
+              run: |
+                echo "The App stack is getting deployed in the EKS Cluster....."
+                echo "The Deployment is successful"

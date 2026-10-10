@@ -7,7 +7,7 @@ on:
       - feature1
     paths:
       - '.github/workflows/**'
-      - 'app/app.py'
+      - 'app/app.py'  
       - 'docker/Dockerfile'
 
   pull_request:
