@@ -97,4 +97,6 @@ jobs:
         if: ${{ inputs.environment == 'prod' }}
         run: |
           echo "Deploying the application stack to the EKS cluster..."
+          echo
           echo "Deployment completed successfully"
+          echo
