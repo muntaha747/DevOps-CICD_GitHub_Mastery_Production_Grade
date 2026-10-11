@@ -102,3 +102,4 @@ jobs:
           echo "Deployment completed successfully"
           echo
           echo
+          echo "You can proceed with another CICD Deployment"
