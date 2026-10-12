@@ -27,8 +27,8 @@ jobs:
         id: deploy-results
         run: |
           echo "Sending Notifications..."
-          echo "Application_name=payment-service" >> $GITHUB_OUTPUT
           echo "Application Name: - ${{ needs.Job1-deployment_job.outputs.deployment_url }}"
+          echo "Application_ID=payment-service" >> $GITHUB_OUTPUT
 
     outputs:
-        deployment_app-name: ${{ steps.deploy-results.outputs.Application_name }}
+        deployment_app-name: ${{ steps.deploy-results.outputs.Application_ID }}
