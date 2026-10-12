@@ -1,0 +1,39 @@
+name: 12-Calling Payment Service Deployment 
+
+on: 
+    workflow_dispatch:
+    push:
+
+jobs:
+    run-unit-tests-job:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Execute Unit Tests
+              run: |
+                    echo "Running the Payment service unit test"
+                    echo "All tests are passed"
+
+    build-payments-artifacts-job:
+        runs-on: ubuntu-latest
+
+        needs:
+            - run-unit-tests-job
+
+        steps:
+            - name: Build Payment Artifacts
+              run: |
+                     echo "Building payment service artifacts..."
+                     echo "Artifacts generated successfully"
+
+    Payment-service-deployment-job:
+
+        needs: 
+            - build-payments-artifacts-job
+
+        uses: ./.github/workflows/11-Reuseable.yaml
+
+        with:
+            application_name: Payment Service
+            run_security_scan: true
+            replicas: 5
