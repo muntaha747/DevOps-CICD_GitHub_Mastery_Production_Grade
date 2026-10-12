@@ -1,0 +1,21 @@
+name: 13-D-Calling-Reuseable-Outputs-Workflows
+
+on:
+    workflow_call:
+
+jobs:
+    deploy-job:
+        uses: ./.github/workflows/13-C-Reuseable-Outputs-Workflows.yaml
+
+    notification-job:
+        runs-on: ubuntu-latest
+        needs:
+            - deploy-job
+        steps:
+            - name: Sending Notifications
+        run: |
+            echo "Sending Notifications"
+            echo "Application URL:"
+            echo "${{ needs.deploy-job.outputs.deployment_url }}"
+            echo "Notification is sent successfully"
+            
