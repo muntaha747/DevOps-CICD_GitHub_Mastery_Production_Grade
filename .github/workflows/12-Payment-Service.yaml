@@ -3,6 +3,7 @@ name: 12-Calling Payment Service Deployment
 on: 
     workflow_dispatch:
     push:
+        branches: [main]
 
 jobs:
     run-unit-tests-job:

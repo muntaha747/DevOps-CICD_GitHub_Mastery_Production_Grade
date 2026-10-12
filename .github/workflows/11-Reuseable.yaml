@@ -1,7 +1,7 @@
 name: 11-Resuable Deployment Workflow
 
 on:
-    workflow_call
+    workflow_call:
         inputs:
             application_name:
                 required: true
@@ -32,10 +32,10 @@ jobs:
                 echo "Deploying ${{ inputs.application_name }}"
                 echo "Desired Replicas: ${{ inputs.replicas }}"
             
-            - name: Deployment Complete
+            - name: Deployment Metadata
               run: |
                 echo "Deploying: ${{ inputs.application_name }}"
-                echo "Desired Replicas: ${{ input.replicas }}"
+                echo "Desired Replicas: ${{ inputs.replicas }}"
             
             - name: Deployment Complete
               run: |
