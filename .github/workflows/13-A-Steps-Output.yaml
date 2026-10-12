@@ -24,3 +24,4 @@ jobs:
                 echo "Sending Notifications..."
                 echo "Application URL: ${{ steps.Deploy.outputs.deployment_url }}"
                 echo "Notifications Sent Successfully"
+                
