@@ -1,6 +1,6 @@
 name: 13-A-Steps Outputs
 on:
-  workflow_dispatch:
+  workflow_dispatch: #it is the manual cicd triggering event
 
 jobs:
     deployment-job:
