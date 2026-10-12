@@ -1,6 +1,6 @@
 name: 13-A-Steps Outputs
 on:
-  workflow_disptach:
+  workflow_dispatch:
 
 jobs:
     deployment-job:
