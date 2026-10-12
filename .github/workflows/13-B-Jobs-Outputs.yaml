@@ -28,6 +28,7 @@ jobs:
         run: |
           echo "Sending Notifications..."
           echo "Application URL: - ${{ needs.Job1-deployment_job.outputs.deployment_url }}"
+          echo "Notifications are completed"
           echo "Application_ID=payment-service" >> $GITHUB_OUTPUT
 
     outputs:
