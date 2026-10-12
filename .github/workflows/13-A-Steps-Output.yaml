@@ -1,0 +1,26 @@
+name: 13-A-Steps Outputs
+on:
+  workflow_disptach:
+
+jobs:
+    deployment-job:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy Application
+              id: Deploy
+              run: |
+                echo "Deploying Application..."
+                sleep 3
+                echo "deployment_url=https://google.com" >> $GITHUB_OUTPUT
+
+            - name: Display Deployment Details
+              run: |
+                echo "Application Deployed Successfully"
+                echo "Deployment URL:"
+                echo "${{ steps.Deploy.outputs.deployment_url }}"
+
+            - name: Send Deployment Notifications
+              run: |
+                echo "Sending Notifications..."
+                echo "Application URL: ${{ steps.Deploy.outputs.deployment_url }}"
+                echo "Notifications Sent Successfully"
