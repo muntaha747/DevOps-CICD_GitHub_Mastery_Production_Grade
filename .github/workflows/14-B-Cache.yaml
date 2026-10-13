@@ -25,7 +25,7 @@ jobs:
 
             - name: Display Cache Status
               run: |
-                echo "Cache Hit: $ {{ steps.pip-cache.outputs.cache-hit }}"
+                echo "Cache Hit: ${{ steps.pip-cache.outputs.cache-hit }}"
 
             - name: Install Dependencies
               run: |
@@ -54,7 +54,7 @@ jobs:
 
             - name: Display Cache Status
               run: |
-                echo "Cache Hit: $ {{ steps.pip-cache.outputs.cache-hit }}"
+                echo "Cache Hit: ${{ steps.pip-cache.outputs.cache-hit }}"
 
             - name: Install Dependencies
               run: |
