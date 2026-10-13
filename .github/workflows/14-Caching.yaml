@@ -16,8 +16,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./app
-          file: ./docker/Dockerfile
-          push: false
+          file: ./docker/Dockerfile.1
+          push: true
           load: true
           tags: artifact-flask-app:v1.0.1
 
