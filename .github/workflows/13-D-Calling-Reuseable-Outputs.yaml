@@ -2,7 +2,7 @@ name: 13-D-Calling-Reuseable-Outputs-Workflows
 
 on:
     push:
-        branches: [main]            # ✅ change from workflow_call
+        branches: [main]           
 
 jobs:
   deploy-job:
