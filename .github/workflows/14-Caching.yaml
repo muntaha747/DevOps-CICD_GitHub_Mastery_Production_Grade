@@ -1,0 +1,64 @@
+name: 14-Artifact-building-uploading-downloading-and-cating.
+
+on:
+  push:
+    branches: [main, feature1]
+
+jobs:
+  Flask-CI-Job-1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app
+          file: ./docker/Dockerfile
+          push: false
+          load: true
+          tags: artifact-flask-app:v1.0.1
+
+      - name: Run the Container
+        run: |
+          docker run -d -p 5000:5000 \
+            --name Flask-Container \
+            artifact-flask-app:v1.0.1
+
+      - name: Docker Logs and add it to the logs.txt
+        run: docker logs Flask-Container > container-logs.txt
+
+      - name: Smoke Test and store in the report
+        run: |
+          sleep 5
+          curl --fail http://localhost:5000 > smoketest-report.txt
+          curl --fail http://localhost:5000 >> smoketest-report.txt
+
+      - name: Uploading the Artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+            name: Flask-CI-Artifacts
+            path: | 
+                container-logs.txt    
+                smoketest-report.txt
+
+  Review-Job-2:
+    runs-on: ubuntu-latest
+    needs: Flask-CI-Job-1
+    steps:
+        - name: Download Artifacts
+          uses: actions/download-artifact@v8
+          with: 
+            name: Flask-CI-Artifacts
+
+        - name: Review the download artifacts
+          run: |
+            echo "====Container Logs Report===="
+            cat container-logs.txt
+            echo 
+            echo
+            echo "====Smoke Test Report===="
+            cat smoketest-report.txt
