@@ -17,7 +17,7 @@ jobs:
         with:
           context: ./app
           file: ./docker/Dockerfile.1
-          push: true
+          push: false
           load: true
           tags: artifact-flask-app:v1.0.1
 
