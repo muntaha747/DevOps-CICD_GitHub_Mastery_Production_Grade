@@ -31,7 +31,7 @@ jobs:
 
   deploy-dev-job:
     name: Deploy To Dev Environment
-    if: github.ref_name == 'develop'
+    if: github.ref_name == 'develop' || 'feature1'
     needs: build-job
     runs-on: ubuntu-latest
     environment: dev
@@ -69,7 +69,7 @@ jobs:
   deploy-feature-job:
     needs: [build-job, deploy-dev-job]
     name: Deploy To Feature Environment
-    if: github.ref_name == 'feature1'
+    if: github.ref_name == 'feature1' || 'develop'
     runs-on: ubuntu-latest
     environment: dev
 
